@@ -14,10 +14,10 @@ type task struct {
 	answer   string
 }
 
-func loadTasks(path string, tasks *[]task) {
+func loadTasks(path string, tasks *[]task) (err error) {
 	csvFile, err := os.Open(path)
 	if err != nil {
-		panic(err)
+		return (err)
 	}
 	defer csvFile.Close()
 
@@ -28,7 +28,7 @@ func loadTasks(path string, tasks *[]task) {
 
 			break
 		} else if err != nil {
-			panic(err)
+			return (err)
 		}
 		question := task{line[0], line[1]}
 		*tasks = append(*tasks, question)
@@ -48,6 +48,37 @@ func play(tasks *[]task, score, answered *int) {
 	}
 	return
 }
+
+/*func playWithTimer(testTime *time.Duration, tasks *[]task, score, answered *int) {
+	timer := time.After(*testTime)
+	answers := make(chan bool)
+	scanner := bufio.NewScanner(os.Stdin)
+
+	go func() {
+		defer close(answers)
+
+		for _, t := range *tasks {
+			select {
+			case <-timer:
+				return
+			default:
+				fmt.Printf("What %s, sir?", t.question)
+				scanner.Scan()
+				ans := scanner.Text()
+				answers <- ans == t.answer
+			}
+		}
+	}()
+
+	for a := range answers {
+		(*answered)++
+		if a {
+			(*score)++
+		}
+	}
+	fmt.Println("end")
+	return
+}*/
 
 func playWithTimer(testTime *time.Duration,tasks *[]task, score, answered *int) {
 	timer := time.NewTimer(time.Second * (*testTime))
@@ -76,3 +107,4 @@ func playWithTimer(testTime *time.Duration,tasks *[]task, score, answered *int) 
 
 	return
 }
+

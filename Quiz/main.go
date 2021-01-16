@@ -15,7 +15,11 @@ func main() {
 		testTime = flag.Duration("testTime", 25, "Set time in seconds allowed for the game")
 	)
 
-	loadTasks(*path, &tasks)
+	err := loadTasks(*path, &tasks)
+	if err != nil {
+		fmt.Println("Sorry, we have problems with loading tasks")
+		return
+	}
 	playWithTimer(testTime, &tasks, &score, &answered)
 	fmt.Printf("\nYou answered %v question(s) and got %v correct from %v questions", answered, score, len(tasks))
 }
