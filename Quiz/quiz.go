@@ -14,13 +14,7 @@ type task struct {
 	answer   string
 }
 
-type quiz struct {
-	tasks    []task
-	answered int
-	score    int
-}
-
-func (quizGame *quiz) loadTasks(path string) {
+func loadTasks(path string, tasks *[]task) {
 	csvFile, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -37,34 +31,33 @@ func (quizGame *quiz) loadTasks(path string) {
 			panic(err)
 		}
 		question := task{line[0], line[1]}
-		quizGame.tasks = append(quizGame.tasks, question)
+		*tasks = append(*tasks, question)
 	}
 	return
 }
 
-func (quizGame *quiz) play() {
+func play(tasks *[]task, score, answered *int) {
 	var answer string
-	for _, t := range quizGame.tasks {
-		fmt.Printf("What %v, sir? ", t.question)
+	for _, t := range *tasks {
+		fmt.Printf("What %s, sir? ", t.question)
 		fmt.Fscan(os.Stdin, &answer)
 		if answer == t.answer {
-			quizGame.score++
+			(*score)++
 		}
-		quizGame.answered++
+		(*answered)++
 	}
 	return
 }
 
-func (quizGame *quiz) playWithTimer() {
-	timer := time.NewTimer(time.Second * 10)
+func playWithTimer(testTime *time.Duration,tasks *[]task, score, answered *int) {
+	timer := time.NewTimer(time.Second * (*testTime))
 	answer := make(chan string)
 	scanner := bufio.NewScanner(os.Stdin)
 
-
-	func(){
-		for _, t := range quizGame.tasks {
+	func() {
+		for _, t := range *tasks {
 			go func() {
-				fmt.Printf("What %v, sir?", t.question)
+				fmt.Printf("What %s, sir?", t.question)
 				scanner.Scan()
 				ans := scanner.Text()
 				answer <- ans
@@ -74,18 +67,12 @@ func (quizGame *quiz) playWithTimer() {
 				return
 			case ans := <-answer:
 				if ans == t.answer {
-					quizGame.score++
+					(*score)++
 				}
-				quizGame.answered++
+				(*answered)++
 			}
 		}
 	}()
 
 	return
-}
-
-func (quizGame *quiz) gameResults() {
-	fmt.Printf("You answered %v questions and got %v correct",
-		quizGame.answered,
-		quizGame.score)
 }
