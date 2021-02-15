@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-	
-	"https://github.com/EgorBessonov/Gophercises/URLShort/urlshort"
+
+	_ "github.com/EgorBessonov/Gophercises/URLShort/urlshort"
 )
 
 func main() {
